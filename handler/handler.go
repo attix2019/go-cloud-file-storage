@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/json"
 	"filestore-server/meta"
-	"filestore-server/util"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -34,7 +36,7 @@ func UploadHandler(w http.ResponseWriter, r* http.Request){
 		localFilePath := filepath.Join("tmp")
 		os.MkdirAll(localFilePath, os.ModePerm)
 		fileDestination := filepath.Join(localFilePath, head.Filename)
-		localFile, err := os.OpenFile(fileDestination, os.O_WRONLY|os.O_CREATE, 0666)
+		localFile, err := os.OpenFile(fileDestination, os.O_RDWR |os.O_CREATE, 0666)
 		if err != nil{
 			fmt.Printf("error occured during opening file: %s\n" + err.Error() )
 		}
@@ -50,9 +52,31 @@ func UploadHandler(w http.ResponseWriter, r* http.Request){
 			fmt.Printf("error occured during saving file : %s\n" + err.Error())
 		}
 		localFile.Seek(0,0)
-		fileMeta.FileSha1 = util.FileSha1(localFile)
+
+		hash := sha1.New()
+		if _, err := io.Copy(hash, localFile); err != nil{
+			fmt.Println(err)
+		}
+		sum := hash.Sum(nil)
+		fileMeta.FileSha1 = hex.EncodeToString(sum)
+		println("新增文件的sha1值为:", fileMeta.FileSha1)
 		meta.UpdateFileMeta(fileMeta)
 
 		http.Redirect(w,r, "/file/upload/success", http.StatusFound)
 	}
+}
+
+// windows下certutil -hashfile 文件名 SHA1
+func QueryFileBySha1Handler(w http.ResponseWriter, r* http.Request) {
+	r.ParseForm()
+
+	key := r.Form["filehash"][0]
+	println("查询请求里的hash:",key)
+	fileMeta := meta.GetFileMeta(key)
+	data, err := json.Marshal(fileMeta)
+	if err!=nil{
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Write(data)
 }
