@@ -12,6 +12,7 @@ func main(){
 	http.HandleFunc("/file/query", handler.QueryFileBySha1Handler)
 	http.HandleFunc("/file/batch", handler.QueryFileInBatch)
 	http.HandleFunc("/file/download", handler.DownloadHandler)
+	http.HandleFunc("/file/delete", handler.DeleteHandler)
 
 	err:= http.ListenAndServe(":8080", nil)
 	if err!= nil{

@@ -108,3 +108,17 @@ func DownloadHandler(w http.ResponseWriter, r * http.Request){
 	w.Header().Add("Content-Disposition","attachment")
 	w.Write(data)
 }
+
+func DeleteHandler(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	filehash := r.Form["filehash"][0]
+	fileMeta := meta.GetFileMeta(filehash)
+	localFileDir:= filepath.Join("tmp")
+	filePath :=  filepath.Join(localFileDir, fileMeta.FileName)
+	err := os.Remove(filePath)
+	if err != nil{
+		fmt.Printf(err.Error())
+	}
+	meta.RemoveItemFromCatalog(filehash)
+	w.WriteHeader(http.StatusNoContent)
+}

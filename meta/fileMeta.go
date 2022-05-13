@@ -56,3 +56,7 @@ func GetFileMetas(limit int)[]FileMeta {
 func (meta FileMeta) String() string {
 	return fmt.Sprintf("%s %s", meta.FileName, meta.FileSha1)
 }
+
+func RemoveItemFromCatalog(filehash string){
+	delete(fileMetas, filehash)
+}
