@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -78,5 +79,12 @@ func QueryFileBySha1Handler(w http.ResponseWriter, r* http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.Write(data)
+}
+
+func QueryFileInBatch(w  http.ResponseWriter, r * http.Request){
+	r.ParseForm()
+	limit, _ := strconv.Atoi(r.Form["limit"][0])
+	data, _ := json.Marshal(meta.GetFileMetas(limit))
 	w.Write(data)
 }

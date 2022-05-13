@@ -1,5 +1,11 @@
 package meta
 
+import (
+	"fmt"
+	"sort"
+	"time"
+)
+
 type FileMeta struct{
 	FileSha1 string
 	FileName string
@@ -26,4 +32,27 @@ func GetFileMeta(fileSha1 string) FileMeta{
 		println("元信息中不包含哈希值为:", fileSha1, " 的文件")
 	}
 	return val
+}
+
+func GetFileMetas(limit int)[]FileMeta {
+	metaArray := make([]FileMeta, 0)
+	for _, value := range fileMetas{
+		metaArray = append(metaArray, value)
+		fmt.Println(value)
+	}
+	const baseFormat = "2022-05-13 20:18:00"
+	sort.Slice(metaArray, func(i,j int) bool {
+		iTime, _ := time.Parse(baseFormat,metaArray[i].UploadAt)
+		jTime, _ := time.Parse(baseFormat, metaArray[i].UploadAt)
+		return iTime.UnixNano() > jTime.UnixNano()
+	})
+	if len(metaArray) < limit {
+		limit = len(metaArray)
+	}
+	println("取回 ", limit, " 项")
+	return metaArray[0: limit]
+}
+
+func (meta FileMeta) String() string {
+	return fmt.Sprintf("%s %s", meta.FileName, meta.FileSha1)
 }
