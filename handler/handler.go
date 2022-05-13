@@ -88,3 +88,23 @@ func QueryFileInBatch(w  http.ResponseWriter, r * http.Request){
 	data, _ := json.Marshal(meta.GetFileMetas(limit))
 	w.Write(data)
 }
+
+func DownloadHandler(w http.ResponseWriter, r * http.Request){
+	var err error
+	var file *os.File
+	var data []byte
+	r.ParseForm()
+	fileHash := r.Form["filehash"][0]
+	fileMeta := meta.GetFileMeta(fileHash)
+	localFilePath := filepath.Join("tmp")
+	filePath :=  filepath.Join(localFilePath, fileMeta.FileName)
+	println(filePath)
+	file, err = os.Open(filePath)
+	data, err = io.ReadAll(file)
+	if err != nil{
+		fmt.Printf(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Header().Add("Content-Disposition","attachment")
+	w.Write(data)
+}
