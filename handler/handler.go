@@ -122,3 +122,15 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request){
 	meta.RemoveItemFromCatalog(filehash)
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func RenameFile(w http.ResponseWriter, r *http.Request){
+	r.ParseForm()
+	filehash := r.Form["filehash"][0]
+	newFileName := r.Form["filename"][0]
+	filemeta := meta.GetFileMeta(filehash)
+	filemeta.FileName = newFileName
+	meta.UpdateFileMeta(filemeta)
+	w.WriteHeader(http.StatusOK)
+	data, _ := json.Marshal(filemeta)
+	w.Write(data)
+}
