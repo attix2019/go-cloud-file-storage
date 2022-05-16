@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"filestore-server/db"
 	"fmt"
 	"sort"
 	"time"
@@ -23,6 +24,7 @@ func init(){
 func UpdateFileMeta(meta FileMeta){
 	println("更新hash为:", meta.FileSha1," 的文件")
 	fileMetas[meta.FileSha1] = meta
+	db.InsetFileMeta(meta.FileSha1, meta.FileName, meta.FileSize, meta.Location)
 }
 
 func GetFileMeta(fileSha1 string) FileMeta{
