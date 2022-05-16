@@ -28,12 +28,21 @@ func UpdateFileMeta(meta FileMeta){
 }
 
 func GetFileMeta(fileSha1 string) FileMeta{
-	var val FileMeta
-	var ok bool
-	if val, ok = fileMetas[fileSha1]; !ok{
-		println("元信息中不包含哈希值为:", fileSha1, " 的文件")
+	//var val FileMeta
+	//var ok bool
+	//if val, ok = fileMetas[fileSha1]; !ok{
+	//	println("元信息中不包含哈希值为:", fileSha1, " 的文件")
+	//}
+	filemeta, err := db.QueryFileMeta(fileSha1)
+	if err != nil{
+		fmt.Println("获取hash为" + fileSha1 +" 的文件的元数据失败")
 	}
-	return val
+	return FileMeta{
+		FileName: filemeta.Filename,
+		FileSha1: filemeta.Filehash,
+		FileSize: filemeta.Filesize,
+		Location: filemeta.Fileaddr,
+	}
 }
 
 func GetFileMetas(limit int)[]FileMeta {
